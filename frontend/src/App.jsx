@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import client from "./nakama";
+import client, { useSSL } from "./nakama";
 import "./App.css";
 
 const getDeviceId = () => {
@@ -60,8 +60,8 @@ export default function App() {
       setSession(sess);
       sessionRef.current = sess;
 
-      // Open realtime socket
-      const sock = client.createSocket();
+      // Open realtime socket — must pass useSSL or it defaults to false
+      const sock = client.createSocket(useSSL);
       await sock.connect(sess, true);
       socketRef.current = sock;
 
