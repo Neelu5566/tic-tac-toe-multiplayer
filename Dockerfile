@@ -7,8 +7,7 @@ RUN go build -buildmode=plugin -trimpath -o ./backend.so .
 # Stage 2: Nakama server with the compiled plugin
 FROM heroiclabs/nakama:3.38.0
 COPY --from=builder /backend/backend.so /nakama/data/modules/backend.so
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
 
 EXPOSE 7350
-ENTRYPOINT ["/start.sh"]
+# Strip postgres:// prefix that Render provides but Nakama doesn't accept
+CMD ["/bin/sh", "-c", "/nakama/nakama --name nakama1 --database.address \"$(echo $DATABASE_URL | sed 's|^postgresql://||;s|^postgres://||')\" --socket.port \"${PORT:-7350}\""]
