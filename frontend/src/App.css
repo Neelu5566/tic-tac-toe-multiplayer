@@ -1,0 +1,156 @@
+﻿/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Base ──────────────────────────────────────────────────────────────────── */
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #0d1b2a;
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+/* ── Screen wrapper ────────────────────────────────────────────────────────── */
+.screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1.5rem 1rem;
+  gap: 1.25rem;
+}
+.screen.center { justify-content: center; }
+
+/* ── Card ───────────────────────────────────────────────────────────────────── */
+.card {
+  background: #16213e;
+  border-radius: 18px;
+  padding: 2.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  width: 320px;
+  max-width: 100%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+.logo { font-size: 2rem; font-weight: 800; color: #00e5cc; letter-spacing: -0.5px; }
+.card-title { font-size: 1.05rem; color: #9090b0; font-weight: 500; }
+.hint { font-size: 0.82rem; color: #505070; }
+
+/* ── Input ──────────────────────────────────────────────────────────────────── */
+.input {
+  width: 100%; padding: 0.75rem 1rem; border-radius: 9px;
+  border: 2px solid #1e3a5f; background: #1e3a5f;
+  color: #fff; font-size: 1rem; outline: none; transition: border-color 0.2s;
+}
+.input:focus { border-color: #00e5cc; }
+.input::placeholder { color: #4a6080; }
+
+/* ── Buttons ────────────────────────────────────────────────────────────────── */
+.btn {
+  width: 100%; padding: 0.75rem; border-radius: 9px; border: none;
+  font-size: 0.95rem; font-weight: 700; cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn.primary  { background: #00e5cc; color: #001a16; }
+.btn.secondary { background: #1e3a5f; color: #8090b0; }
+
+/* ── Spinner ────────────────────────────────────────────────────────────────── */
+.spinner {
+  width: 48px; height: 48px;
+  border: 4px solid #1e3a5f; border-top-color: #00e5cc;
+  border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0.25rem 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Player bar ─────────────────────────────────────────────────────────────── */
+.player-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; max-width: 360px; background: #16213e;
+  border-radius: 14px; padding: 0.75rem 1rem; gap: 0.5rem;
+}
+.player-info {
+  display: flex; align-items: center; gap: 0.5rem;
+  opacity: 0.45; transition: opacity 0.3s; min-width: 0;
+}
+.player-info.right { flex-direction: row-reverse; }
+.player-info.active { opacity: 1; }
+.symbol-badge {
+  width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%;
+  background: #0f2a45; display: flex; align-items: center;
+  justify-content: center; font-size: 1rem; font-weight: 800; color: #00e5cc;
+}
+.player-name { font-size: 0.8rem; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.player-name small { color: #505070; }
+.turn-status { font-size: 0.82rem; font-weight: 700; color: #00e5cc; text-align: center; flex: 1; white-space: nowrap; }
+
+/* ── Board ──────────────────────────────────────────────────────────────────── */
+.board {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; width: min(300px, calc(100vw - 2rem));
+}
+.cell {
+  aspect-ratio: 1; background: #16213e; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem; font-weight: 800; color: #00e5cc;
+  user-select: none; transition: background 0.15s;
+}
+.cell.O { color: #ff6b6b; }
+.cell.clickable { cursor: pointer; }
+.cell.clickable:hover { background: #1c3558; }
+
+/* ── Game-over overlay ──────────────────────────────────────────────────────── */
+.overlay {
+  position: fixed; inset: 0; background: rgba(5,10,20,0.88);
+  display: flex; align-items: center; justify-content: center; z-index: 10; padding: 1rem;
+}
+.result-card {
+  background: #16213e; border-radius: 22px; padding: 2rem 1.75rem;
+  width: 340px; max-width: 100%; max-height: 90vh; overflow-y: auto;
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+}
+.result-title { font-size: 1.8rem; font-weight: 800; color: #00e5cc; text-align: center; }
+.result-pts { font-size: 0.9rem; color: #9090b0; }
+.result-buttons { display: flex; gap: 0.75rem; width: 100%; }
+.result-buttons .btn { flex: 1; }
+
+/* ── Leaderboard ────────────────────────────────────────────────────────────── */
+.leaderboard { width: 100%; border-top: 1px solid #1e3a5f; padding-top: 1rem; }
+.lb-title {
+  text-align: center; margin-bottom: 0.6rem; color: #6070a0;
+  font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;
+}
+.lb-row {
+  display: grid; grid-template-columns: 22px 1fr auto;
+  gap: 0.5rem; padding: 0.3rem 0; font-size: 0.88rem; align-items: center;
+}
+.lb-header { color: #404060; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; padding-bottom: 0.4rem; }
+.lb-row.me { color: #00e5cc; font-weight: 700; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 380px) {
+  .player-bar { padding: 0.6rem 0.75rem; }
+  .symbol-badge { width: 30px; height: 30px; font-size: 0.85rem; }
+  .cell { font-size: 2rem; border-radius: 10px; }
+}
+
+/* ── Mode toggle ────────────────────────────────────────────────────────────── */
+.mode-toggle { display: flex; gap: 0.5rem; width: 100%; }
+.mode-btn {
+  flex: 1; padding: 0.55rem; border-radius: 8px; border: 2px solid #1e3a5f;
+  background: transparent; color: #6080a0; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.mode-btn.active { border-color: #00e5cc; color: #00e5cc; background: rgba(0,229,204,0.08); }
+
+/* ── Turn timer ─────────────────────────────────────────────────────────────── */
+.timer {
+  font-size: 1.3rem; font-weight: 800; color: #00e5cc;
+  margin-top: 0.2rem; transition: color 0.3s;
+}
+.timer.urgent { color: #ff6b6b; animation: pulse 0.8s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }

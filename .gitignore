@@ -1,0 +1,13 @@
+# Compiled plugin binary (built by Docker, not committed)
+backend/backend.so
+
+# Frontend build output
+frontend/dist/
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
