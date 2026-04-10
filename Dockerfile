@@ -8,6 +8,10 @@ RUN go build -buildmode=plugin -trimpath -o ./backend.so .
 FROM heroiclabs/nakama:3.38.0
 COPY --from=builder /backend/backend.so /nakama/data/modules/backend.so
 
+# Write startup script inside the image (avoids Windows CRLF issues)
+RUN printf '#!/bin/sh\nset -e\nDB=$(echo "$DATABASE_URL" | sed "s|^postgresql://||;s|^postgres://||")\nexec /nakama/nakama --name nakama1 --database.address "$DB" --socket.port "${PORT:-7350}"\n' > /start.sh \
+    && chmod +x /start.sh
+
 EXPOSE 7350
-# Strip postgres:// prefix that Render provides but Nakama doesn't accept
-CMD ["/bin/sh", "-c", "/nakama/nakama --name nakama1 --database.address \"$(echo $DATABASE_URL | sed 's|^postgresql://||;s|^postgres://||')\" --socket.port \"${PORT:-7350}\""]
+ENTRYPOINT ["/start.sh"]
+
