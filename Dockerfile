@@ -7,6 +7,8 @@ RUN go build -buildmode=plugin -trimpath -o ./backend.so .
 # Stage 2: Nakama server with the compiled plugin
 FROM heroiclabs/nakama:3.38.0
 COPY --from=builder /backend/backend.so /nakama/data/modules/backend.so
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
-EXPOSE 7349 7350 7351
-ENTRYPOINT ["/nakama/nakama"]
+EXPOSE 7350
+ENTRYPOINT ["/start.sh"]

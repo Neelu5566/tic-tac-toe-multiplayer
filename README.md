@@ -141,80 +141,61 @@ tic-tac-toe-multiplayer/
 
 ## Deployment
 
-The recommended setup is **Railway** for the Nakama server + Postgres, and **Vercel** for the React frontend.
+Nakama server is deployed on **Render** (free tier) and the React frontend on **Vercel** (free tier).
 
 ### Prerequisites
-- [GitHub](https://github.com) account (to push your code)
-- [Railway](https://railway.app) account (free tier works)
-- [Vercel](https://vercel.com) account (free tier works)
+- [GitHub](https://github.com) account
+- [Render](https://render.com) account (free)
+- [Vercel](https://vercel.com) account (free)
 
 ---
 
-### Step 1 — Push to GitHub
+### Step 1 — Deploy Nakama on Render
 
-```bash
-git init
-git add .
-git commit -m "initial commit"
-git remote add origin https://github.com/YOUR_USERNAME/tic-tac-toe-multiplayer.git
-git push -u origin main
-```
+1. Go to [render.com](https://render.com) → **New** → **Blueprint**
+2. Connect your GitHub repo (`tic-tac-toe-multiplayer`)
+3. Render will detect `render.yaml` automatically and create:
+   - A **PostgreSQL** database (`nakama-db`)
+   - A **Web Service** (`nakama-server`) built from the `Dockerfile`
+4. Click **Apply** — the build takes ~5 minutes (compiles the Go plugin inside Docker)
+5. Once deployed, your Nakama URL will be:  
+   `https://nakama-server.onrender.com`
 
----
-
-### Step 2 — Deploy Nakama on Railway
-
-1. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**
-2. Select your repository
-3. Railway will detect the `Dockerfile` automatically
-4. Click **Add Service** → **Database** → **PostgreSQL** to add a Postgres instance
-5. In the Nakama service → **Variables**, add:
-   ```
-   DATABASE_ADDRESS=<postgres_user>:<postgres_password>@<postgres_host>:<postgres_port>/<postgres_db>
-   ```
-   > Copy the Postgres connection details from the Railway Postgres service's **Connect** tab.  
-   > Remove the `postgres://` prefix — Nakama expects `user:pass@host:port/db` format.
-6. In **Settings** → **Start Command**, set:
-   ```
-   /nakama/nakama --name nakama1 --database.address $(DATABASE_ADDRESS)
-   ```
-7. In **Settings** → **Networking** → expose port `7350`
-8. Railway will give you a public URL like `https://nakama-production-xxxx.up.railway.app`
+> **Note:** Free tier services sleep after 15 minutes of inactivity. The first request after sleep takes ~30 seconds to wake up.
 
 ---
 
-### Step 3 — Deploy Frontend on Vercel
+### Step 2 — Deploy Frontend on Vercel
 
 1. Go to [vercel.com](https://vercel.com) → **New Project** → Import your GitHub repo
 2. Set **Root Directory** to `frontend`
 3. Under **Environment Variables**, add:
    ```
-   VITE_NAKAMA_HOST=nakama-production-xxxx.up.railway.app
+   VITE_NAKAMA_HOST=nakama-server.onrender.com
    VITE_NAKAMA_PORT=443
    VITE_NAKAMA_SSL=true
    ```
-   > Use the Railway domain from Step 2 (without `https://`). Railway uses port 443 with SSL.
-4. Click **Deploy** — Vercel will run `npm run build` and publish the frontend
-5. Your game will be live at `https://your-project.vercel.app`
+   > Replace `nakama-server` with your actual Render service name if different.
+4. Click **Deploy** — your frontend will be live at `https://your-project.vercel.app`
 
 ---
 
 ### API / Server Configuration
 
-| Setting | Local | Production |
-|---------|-------|------------|
-| Nakama Host | `127.0.0.1` | Railway public domain |
+| Setting | Local | Production (Render) |
+|---------|-------|---------------------|
+| Nakama Host | `127.0.0.1` | `nakama-server.onrender.com` |
 | Nakama Port | `7350` | `443` |
 | SSL | `false` | `true` |
-| Server Key | `defaultkey` | `defaultkey` (or change in Nakama config) |
-| Database | `postgres:localdb@postgres:5432/nakama` | Railway Postgres URL |
+| Server Key | `defaultkey` | `defaultkey` |
+| Database | Docker Postgres | Render Postgres (auto-configured) |
 
 Environment variables used by the frontend (set in Vercel):
 
 | Variable | Description |
 |----------|-------------|
 | `VITE_NAKAMA_HOST` | Nakama server hostname (no `https://`) |
-| `VITE_NAKAMA_PORT` | Nakama API port (`443` for Railway) |
+| `VITE_NAKAMA_PORT` | `443` for Render (HTTPS) |
 | `VITE_NAKAMA_SSL` | `"true"` to enable WSS/HTTPS |
 
 ---
@@ -222,15 +203,15 @@ Environment variables used by the frontend (set in Vercel):
 ### Deployment Diagram
 
 ```
-Browser → https://your-project.vercel.app  (Vercel — React frontend)
+Browser → https://your-project.vercel.app   (Vercel — React frontend)
               │
-              │ WSS (WebSocket Secure)
+              │ WSS :443 (WebSocket Secure)
               ▼
-         Railway Nakama  :443  (Docker — Go plugin)
+    https://nakama-server.onrender.com       (Render — Nakama Docker service)
               │
               │ TCP
               ▼
-         Railway PostgreSQL  (persistent player data + leaderboard)
+         Render PostgreSQL                   (persistent player data + leaderboard)
 ```
 
 ---
